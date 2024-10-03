@@ -41,7 +41,7 @@ Add more operations to `public/util.ts` to test your server code.
 Make sure to refresh the page after making changes to the client code.
 Add some fancy CSS to make your page look nicer!
 
-Keep in mind that we are using `MongoStore` for session management,
+Keep in mind that we are using `Mongotore` for session management,
 so your session will be persisted across server restarts.
 
 ## Deploying to Vercel
