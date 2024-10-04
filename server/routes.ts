@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Authing, Friending, Posting, Sessioning } from "./app";
+import { Authing, Friending, Messaging, Posting, Sessioning } from "./app";
 import { PostOptions } from "./concepts/posting";
 import { SessionDoc } from "./concepts/sessioning";
 import Responses from "./responses";
@@ -151,6 +151,20 @@ class Routes {
     const user = Sessioning.getUser(session);
     const fromOid = (await Authing.getUserByUsername(from))._id;
     return await Friending.rejectRequest(fromOid, user);
+  }
+
+  @Router.post("/messages/:to")
+  async getMessagesFromUser(session: SessionDoc, to: string) {
+    const user = Sessioning.getUser(session);
+    const toId = (await Authing.getUserByUsername(to))._id;
+    return await Messaging.getMessages(user, toId);
+  }
+
+  @Router.get("/messages/:to")
+  async sendMessageTo(session: SessionDoc, to: string, content: string) {
+    const user = Sessioning.getUser(session);
+    const toId = (await Authing.getUserByUsername(to))._id;
+    return await Messaging.sendMessage(user, toId, content);
   }
 }
 

@@ -15,6 +15,18 @@ type Operation = {
  */
 const operations: Operation[] = [
   {
+    name: "Send Message",
+    endpoint: "/messages/:to",
+    method: "POST",
+    fields: { to: "input", content: "input" },
+  },
+  {
+    name: "Get Messages",
+    endpoint: "/messages/:to",
+    method: "GET",
+    fields: { to: "input" },
+  },
+  {
     name: "Get Session User (logged in user)",
     endpoint: "/api/session",
     method: "GET",
