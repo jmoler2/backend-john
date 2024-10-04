@@ -184,6 +184,42 @@ class Routes {
     const user = Sessioning.getUser(session);
     return await TravellingUsers.changeLocation(user, location);
   }
+
+  @Router.post("/group/:id")
+  async createGroup() {}
+
+  @Router.patch("/group/:id")
+  async changeGroup() {}
+
+  @Router.get("/group/:id")
+  async getGroupMembers() {}
+
+  @Router.put("/group/:id/invite")
+  async inviteToGroup() {}
+
+  @Router.put("/group/:id/join")
+  async joinGroup() {}
+
+  @Router.delete("group/:id/leave")
+  async leaveGroup() {}
+
+  @Router.get("/group/:id/board")
+  async getGroupBoard() {}
+
+  @Router.get("/forums")
+  async getForums() {}
+
+  @Router.put("/forums/:id")
+  async joinForum() {}
+
+  @Router.delete("/forums/:id")
+  async leaveForum() {}
+
+  @Router.get("/forums/:id")
+  async viewForum() {}
+
+  @Router.get("/forums")
+  async sortForums() {}
 }
 
 /** The web app. */
