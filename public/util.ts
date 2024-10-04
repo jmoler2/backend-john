@@ -92,6 +92,25 @@ const operations: Operation[] = [
     method: "DELETE",
     fields: { id: "input" },
   },
+  {
+    name: "Set Your Location",
+    endpoint: "/api/location",
+    method: "POST",
+    fields: { location: "input" },
+  },
+  {
+    name: "Get your Location",
+    endpoint: "/api/location",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Change Your Location",
+    endpoint: "/api/location",
+    method: "PATCH",
+    fields: { location: "input" },
+  },
+
   //
   // ...
   //
