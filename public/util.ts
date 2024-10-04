@@ -16,13 +16,13 @@ type Operation = {
 const operations: Operation[] = [
   {
     name: "Send Message",
-    endpoint: "/messages/:to",
+    endpoint: "/api/messages",
     method: "POST",
     fields: { to: "input", content: "input" },
   },
   {
     name: "Get Messages",
-    endpoint: "/messages/:to",
+    endpoint: "/api/messages",
     method: "GET",
     fields: { to: "input" },
   },

@@ -153,14 +153,14 @@ class Routes {
     return await Friending.rejectRequest(fromOid, user);
   }
 
-  @Router.post("/messages/:to")
+  @Router.post("/messages")
   async getMessagesFromUser(session: SessionDoc, to: string) {
     const user = Sessioning.getUser(session);
     const toId = (await Authing.getUserByUsername(to))._id;
     return await Messaging.getMessages(user, toId);
   }
 
-  @Router.get("/messages/:to")
+  @Router.get("/messages")
   async sendMessageTo(session: SessionDoc, to: string, content: string) {
     const user = Sessioning.getUser(session);
     const toId = (await Authing.getUserByUsername(to))._id;
