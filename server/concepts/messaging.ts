@@ -20,7 +20,8 @@ export default class MessagingConcept {
 
   async sendMessage(from: ObjectId, to: ObjectId, content: string) {
     const _id = await this.messages.createOne({ to, from, content });
-    return { msg: "Message Sent Successfully", message: await this.messages.readOne({ _id }) };
+    return { msg: "no" };
+    // return { msg: "Message Sent Successfully", message: await this.messages.readOne({ _id }) };
   }
 
   async getMessages(from: ObjectId, to: ObjectId) {
