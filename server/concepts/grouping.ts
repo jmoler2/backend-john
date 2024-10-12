@@ -45,7 +45,11 @@ export default class GroupingConcept {
     async createGroup(groupName: string, creator: ObjectId) {
         const isGroup = await this.groups.readOne( {groupName} )
         if (isGroup) {throw new NotAllowedError("This group name is already taken.")}
-        return await this.groups.createOne({ groupName, members: [], boards: [], admin: creator })
+        return await this.groups.createOne({ groupName, members: [creator], boards: [], admin: creator })
+    }
+
+    async getGroups(user: ObjectId) {
+        return await this.groups.readMany({members: user})
     }
 
     async disbandGroup(groupName: string, requestor: ObjectId) {
@@ -118,8 +122,21 @@ export default class GroupingConcept {
         return await this.groups.partialUpdateOne({groupName}, {boards})
     }
 
-    async deleteGroupBoard() {
+    async deleteGroupBoard(user: ObjectId, object: ObjectId, groupName: string) {
+        const group = await this.groups.readOne({ groupName });
+        if (!group) { throw new BadValuesError("This group does not exist:", + groupName)}
+        if (user !== group.admin) {
+            throw new NotAllowedError("Requestor does not possess admin priveleges over this group.")
+        }
+        const boards = group.boards.splice(group.boards.lastIndexOf(object), 1)
+        return await this.groups.partialUpdateOne({groupName}, {boards})
+    }
 
+    async getBoards(user: ObjectId, groupName: string) {
+        const group = await this.groups.readOne({ groupName });
+        if (!group) { throw new BadValuesError("This group does not exist:", + groupName)}
+        if (!group.members.includes(user)) {throw new NotAllowedError("This user is not a member of this group.")}
+        return group.boards
     }
     
 
