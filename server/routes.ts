@@ -294,9 +294,9 @@ class Routes {
   @Router.post("/forums/:forumName")
   async postToForum(session: SessionDoc, content: string, forumName: string, options?: PostOptions) {
     const user = Sessioning.getUser(session);
-    const created = await Posting.create(user, content, options);
+    const created = (await Posting.create(user, content, options));
 
-    return await Foruming.addToForum(user, created.post?._id??new ObjectId(), forumName)
+    return await Foruming.addToForum(user, created.post?.content?? "", forumName)
   }
 
   @Router.post('/group/boards/:groupName')
@@ -307,7 +307,7 @@ class Routes {
     const forumName = await Foruming.getForumNameById(board) ?? "Error404";
     
 
-    return await Foruming.addToForum(user, created.post?._id??new ObjectId(), forumName);
+    return await Foruming.addToForum(user, created.post?.content??"", forumName);
   }
 }
 

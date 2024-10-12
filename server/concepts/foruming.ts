@@ -6,7 +6,7 @@ import { NotAllowedError } from "./errors";
 
 export interface ForumDoc extends BaseDoc {
     forumName: string,
-    forumContent: ObjectId[]
+    forumContent: string[]
     forumFollowers: string[]
     admin: string
   }
@@ -63,7 +63,7 @@ export default class ForumConcept {
         return await this.forums.readMany({})
     }
 
-    async addToForum(user: ObjectId, content: ObjectId, forumName: String) {
+    async addToForum(user: ObjectId, content: string, forumName: String) {
         const forum = await this.forums.readOne({forumName})
         if (!forum) {throw new NotAllowedError("This forum does not exist.")}
         if (!forum.forumFollowers.includes(user.toString())) {throw new NotAllowedError("This user is not following this forum.")}
@@ -71,12 +71,12 @@ export default class ForumConcept {
         return await this.forums.partialUpdateOne({forumName}, {forumContent})
     }
 
-    async deleteFromForum(user: ObjectId, contentId: ObjectId, forumName: string) {
+    async deleteFromForum(user: ObjectId, content: string, forumName: string) {
         const forum = await this.forums.readOne({forumName})
         if (!forum) {throw new NotAllowedError("This forum does not exist.")}
 
         const forumContent = forum.forumContent
-        forumContent.splice(forumContent.indexOf(contentId), 1)
+        forumContent.splice(forumContent.indexOf(content), 1)
         return await this.forums.partialUpdateOne({forumName}, {forumContent})
     }
 
