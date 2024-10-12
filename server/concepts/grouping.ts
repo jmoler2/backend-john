@@ -6,7 +6,7 @@ import { BadValuesError, NotAllowedError } from "./errors";
 
 export interface GroupDoc extends BaseDoc {
   groupName: string;
-  members: ObjectId[];
+  members: string[];
   boards: ObjectId[];
   admin: ObjectId;
 }
@@ -45,17 +45,17 @@ export default class GroupingConcept {
     async createGroup(groupName: string, creator: ObjectId) {
         const isGroup = await this.groups.readOne( {groupName} )
         if (isGroup) {throw new NotAllowedError("This group name is already taken.")}
-        return await this.groups.createOne({ groupName, members: [creator], boards: [], admin: creator })
+        return await this.groups.createOne({ groupName, members: [creator.toString()], boards: [], admin: creator })
     }
 
     async getGroups(user: ObjectId) {
-        return await this.groups.readMany({members: user})
+        return await this.groups.readMany({members: user.toString()})
     }
 
     async disbandGroup(groupName: string, requestor: ObjectId) {
         const group = await this.groups.readOne({ groupName });
         if (!group) { throw new BadValuesError("This group does not exist:", + groupName)}
-        if (requestor != group.admin) {
+        if (requestor.toString() !== group.admin.toString()) {
             throw new NotAllowedError("Requestor does not possess admin priveleges over this group.")
         }
         return await this.groups.deleteOne({ groupName });
@@ -67,24 +67,24 @@ export default class GroupingConcept {
         await this.assertIsMember(user, groupName);
 
         const mems = group.members
-        mems.splice(mems.indexOf(user), 1)
+        mems.splice(mems.indexOf(user.toString()), 1)
         return await this.groups.partialUpdateOne({groupName}, {members: mems})
     }
 
     async invite(from:ObjectId, to:ObjectId, groupName: string) {
         const group = await this.groups.readOne({ groupName });
         if (!group) { throw new BadValuesError("This group does not exist:", + groupName)}
-        if (from !== group.admin) {
+        if (from.toString() !== group.admin.toString()) {
             throw new NotAllowedError("Requestor does not possess admin priveleges over this group.")
         }
-        if (group.members.includes(to)) {throw new NotAllowedError("The group already contains this member.")}
+        if (group.members.includes(to.toString())) {throw new NotAllowedError("The group already contains this member.")}
         return this.invites.createOne({from, to, groupName, status: "pending"})
     }
 
     async revokeInvite(from:ObjectId, to:ObjectId, groupName: string) {
         const group = await this.groups.readOne({ groupName });
         if (!group) { throw new BadValuesError("This group does not exist:", + groupName)}
-        if (from !== group.admin) {
+        if (from.toString() !== group.admin.toString()) {
             throw new NotAllowedError("Requestor does not possess admin priveleges over this group.")
         }
         return this.invites.deleteOne({from, to, groupName, status: "pending"})
@@ -96,7 +96,7 @@ export default class GroupingConcept {
         const invite = await this.invites.readOne({to: user, groupName})
         if (!invite) { throw new NotAllowedError("You do not have an invite to this group.")}
         await this.invites.partialUpdateOne({to: user, groupName}, {status: "accepted"})
-        const mem = group.members.concat([user]) 
+        const mem = group.members.concat([user.toString()]) 
         return await this.groups.partialUpdateOne({groupName}, {members: mem})
         
     }
@@ -116,7 +116,7 @@ export default class GroupingConcept {
     async getGroupInvites(user: ObjectId, groupName: string) {
         const group = await this.groups.readOne({ groupName });
         if (!group) { throw new BadValuesError("This group does not exist:", + groupName)}
-        if (user !== group.admin) {
+        if (user.toString() !== group.admin.toString()) {
             throw new NotAllowedError("Requestor does not possess admin priveleges over this group.")
         }
         return await this.invites.readMany({ groupName });
@@ -128,7 +128,7 @@ export default class GroupingConcept {
          */
         const group = await this.groups.readOne({ groupName });
         if (!group) { throw new BadValuesError("This group does not exist:", + groupName)}
-        if (user !== group.admin) {
+        if (user.toString() !== group.admin.toString()) {
             throw new NotAllowedError("Requestor does not possess admin priveleges over this group.")
         }
         if (group.boards.length !== 0) {throw new NotAllowedError("Only one board allowed per group")}
@@ -139,7 +139,7 @@ export default class GroupingConcept {
     async deleteGroupBoard(user: ObjectId, object: ObjectId, groupName: string) {
         const group = await this.groups.readOne({ groupName });
         if (!group) { throw new BadValuesError("This group does not exist:", + groupName)}
-        if (user !== group.admin) {
+        if (user.toString() !== group.admin.toString()) {
             throw new NotAllowedError("Requestor does not possess admin priveleges over this group.")
         }
         const boards = group.boards.splice(group.boards.lastIndexOf(object), 1)
@@ -149,7 +149,7 @@ export default class GroupingConcept {
     async getBoards(user: ObjectId, groupName: string) {
         const group = await this.groups.readOne({ groupName });
         if (!group) { throw new BadValuesError("This group does not exist:", + groupName)}
-        if (!group.members.includes(user)) {throw new NotAllowedError("This user is not a member of this group.")}
+        if (!group.members.includes(user.toString())) {throw new NotAllowedError("This user is not a member of this group.")}
         return group.boards
     }
     
@@ -163,7 +163,7 @@ export default class GroupingConcept {
     async assertIsMember(user: ObjectId, groupName: string) {
         const group = await this.groups.readOne({ groupName });
         if (!group) { throw new BadValuesError("This group does not exist:", + groupName)}
-        if (!group.members.includes(user)) {throw new NotAllowedError("This user is not a member of this group.")}
+        if (!group.members.includes(user.toString())) {throw new NotAllowedError("This user is not a member of this group.")}
     }
 
 
