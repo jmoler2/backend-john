@@ -7,8 +7,8 @@ import { NotAllowedError } from "./errors";
 export interface ForumDoc extends BaseDoc {
     forumName: string,
     forumContent: ObjectId[]
-    forumFollowers: ObjectId[]
-    admin: ObjectId
+    forumFollowers: string[]
+    admin: string
   }
 
 export default class ForumConcept {
@@ -22,20 +22,20 @@ export default class ForumConcept {
         const forum = await this.forums.readOne({forumName})
         if (forum) {throw new NotAllowedError("A forum with this name already exists."
         )}
-        return await this.forums.createOne({forumName, forumContent: [], forumFollowers: [user], admin: user})
+        return await this.forums.createOne({forumName, forumContent: [], forumFollowers: [user.toString()], admin: user.toString()})
     }
     async deleteForum(forumName: string, user: ObjectId) {
         const forum = await this.forums.readOne({forumName})
         if (!forum) {return new NotAllowedError("This forum does not exist.")}
-        if (forum.admin !== user) {return new NotAllowedError("This user does not have permissions to delete this forum.")}
+        if (forum.admin.toString() !== user.toString()) {return new NotAllowedError("This user does not have permissions to delete this forum.")}
         return await this.forums.deleteOne({forumName})
     }
 
     async joinForum(user: ObjectId, forumName: string) {
         const forum = await this.forums.readOne({forumName})
         if (!forum) {throw new NotAllowedError("This forum does not exist.")}
-        if (forum.forumFollowers.includes(user)) {throw new NotAllowedError("This user is already following this forum.")}
-        const followers = forum.forumFollowers.concat([user])
+        if (forum.forumFollowers.includes(user.toString())) {throw new NotAllowedError("This user is already following this forum.")}
+        const followers = forum.forumFollowers.concat([user.toString()])
         return await this.forums.partialUpdateOne({forumName}, {forumFollowers: followers})
     }
 
@@ -46,16 +46,16 @@ export default class ForumConcept {
     async leaveForum(user: ObjectId, forumName: string) {
         const forum = await this.forums.readOne({forumName})
         if (!forum) {throw new NotAllowedError("This forum does not exist.")}
-        if (!forum.forumFollowers.includes(user)) {throw new NotAllowedError("This user is not following this forum.")}
+        if (!forum.forumFollowers.includes(user.toString())) {throw new NotAllowedError("This user is not following this forum.")}
         const followers = forum.forumFollowers
-        followers.splice(forum.forumFollowers.indexOf(user), 1)
+        followers.splice(forum.forumFollowers.indexOf(user.toString()), 1)
         return await this.forums.partialUpdateOne({forumName}, {forumFollowers: followers})
     }
 
     async getForumContent(user: ObjectId, forumName: string) {
         const forum = await this.forums.readOne({forumName})
         if (!forum) {throw new NotAllowedError("This forum does not exist.")}
-        if (!forum.forumFollowers.includes(user)) {throw new NotAllowedError("This user is not following this forum.")}
+        if (!forum.forumFollowers.includes(user.toString())) {throw new NotAllowedError("This user is not following this forum.")}
         return forum.forumContent
     }
 
@@ -66,17 +66,17 @@ export default class ForumConcept {
     async addToForum(user: ObjectId, content: ObjectId, forumName: String) {
         const forum = await this.forums.readOne({forumName})
         if (!forum) {throw new NotAllowedError("This forum does not exist.")}
-        if (!forum.forumFollowers.includes(user)) {throw new NotAllowedError("This user is not following this forum.")}
+        if (!forum.forumFollowers.includes(user.toString())) {throw new NotAllowedError("This user is not following this forum.")}
         const forumContent = forum.forumContent.concat([content])
         return await this.forums.partialUpdateOne({forumName}, {forumContent})
     }
 
-    async deleteFromForum(user: ObjectId, content: ObjectId, forumName: string) {
+    async deleteFromForum(user: ObjectId, contentId: ObjectId, forumName: string) {
         const forum = await this.forums.readOne({forumName})
         if (!forum) {throw new NotAllowedError("This forum does not exist.")}
 
         const forumContent = forum.forumContent
-        forumContent.splice(forumContent.indexOf(content), 1)
+        forumContent.splice(forumContent.indexOf(contentId), 1)
         return await this.forums.partialUpdateOne({forumName}, {forumContent})
     }
 
