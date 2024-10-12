@@ -207,7 +207,7 @@ class Routes {
   async getGroupMembers(session: SessionDoc, groupName: string) {
     const user = Sessioning.getUser(session);
     await Grouping.assertIsMember(user, groupName);
-    return await Grouping.getMembers;
+    return await Grouping.getMembers(groupName);
   }
 
   @Router.put("/group/invite/:groupName")
