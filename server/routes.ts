@@ -191,10 +191,16 @@ class Routes {
     return await Grouping.createGroup(groupName, user);
   }
 
-  @Router.patch("/group/:groupName")
+  @Router.delete("/group/:groupName")
   async deleteGroup(session: SessionDoc, groupName: string) {
     const user = Sessioning.getUser(session);
     return await Grouping.disbandGroup(groupName, user);
+  }
+
+  @Router.get("/group")
+  async getUserGroups(session: SessionDoc) {
+    const user = Sessioning.getUser(session);
+    return await Grouping.getGroups(user);
   }
 
   @Router.get("/group/:groupName")
@@ -204,45 +210,45 @@ class Routes {
     return await Grouping.getMembers;
   }
 
-  @Router.put("/group/:groupName/invite")
+  @Router.put("/group/invite/:groupName")
   async inviteToGroup(session: SessionDoc, groupName: string, to: string) {
     const user = Sessioning.getUser(session);
     const toId = (await Authing.getUserByUsername(to))._id;
     return await Grouping.invite(user, toId, groupName);
   }
 
-  @Router.put("/group/:groupName/join")
+  @Router.patch("/group/join/:groupName")
   async acceptInvite(session: SessionDoc, groupName: string) {
     const user = Sessioning.getUser(session);
     return await Grouping.acceptInvite(user, groupName);
   }
 
-  @Router.put("/group/:groupName/reject") 
+  @Router.patch("/group/reject/:groupName") 
   async rejectInvite(session: SessionDoc, groupName: string) {
     const user = Sessioning.getUser(session);
     return await Grouping.acceptInvite(user, groupName);
   }
 
-  @Router.delete("group/:groupName/leave")
+  @Router.delete("group/leave/:groupName")
   async leaveGroup(session: SessionDoc, groupName: string) {
     const user = Sessioning.getUser(session);
     return await Grouping.leaveGroup(groupName, user);
   }
 
-  @Router.get("/group/:groupName/boards")
+  @Router.get("/group/boards/:groupName")
   async getGroupBoard(session: SessionDoc, groupName: string) {
     const user = Sessioning.getUser(session);
     return await Grouping.getBoards(user, groupName);
   }
 
-  @Router.put('/group/:groupName/boards')
+  @Router.put('/group/boards/:groupName')
   async makeGroupForum(session: SessionDoc, groupName: string) {
     const user = Sessioning.getUser(session);
     const forum = await Foruming.createForum(groupName + "_forum", user)
     return await Grouping.createGroupBoard(user, forum, groupName);
   }
 
-  @Router.delete('/group/:groupName/boards')
+  @Router.delete('/group/boards/:groupName')
   async deleteGroupForum(session: SessionDoc, groupName: string) {
     const user = Sessioning.getUser(session);
     const forum = (await Grouping.getBoards(user, groupName))[0];
@@ -259,6 +265,18 @@ class Routes {
   async joinForum(session: SessionDoc, forumName: string) {
     const user = Sessioning.getUser(session);
     return await Foruming.joinForum(user, forumName);
+  }
+
+  @Router.put('/forums')
+  async createForum(session: SessionDoc, forumName: string) {
+    const user = Sessioning.getUser(session);
+    return await Foruming.createForum(forumName, user);
+  }
+
+  @Router.delete('/forums')
+  async deleteForum(session: SessionDoc, forumName: string) {
+    const user = Sessioning.getUser(session);
+    return await Foruming.deleteForum(forumName, user);
   }
 
   @Router.delete("/forums/:forumName")
@@ -281,7 +299,7 @@ class Routes {
     return await Foruming.addToForum(user, created.post?._id??new ObjectId(), forumName)
   }
 
-  @Router.post("/group/:groupName/boards")
+  @Router.post('/group/boards/:groupName')
   async postToGroup(session: SessionDoc, content: string, groupName: string, options?: PostOptions) {
     const user = Sessioning.getUser(session);
     const created = await Posting.create(user, content, options);

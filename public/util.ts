@@ -116,6 +116,117 @@ const operations: Operation[] = [
     method: "POST",
     fields: { groupName: "input" },
   },
+  {
+    name: "Delete a Group",
+    endpoint: "/api/group/:groupName",
+    method: "DELETE",
+    fields: { groupName: "input" },
+  },
+
+  {
+    name: "See Group Members",
+    endpoint: "/api/group/:groupName",
+    method: "GET",
+    fields: { groupName: "input" },
+  },
+  {
+    name: "See Groups",
+    endpoint: "/api/group",
+    method: "GET",
+    fields: { },
+  },
+  {
+    name: "Invite To Group",
+    endpoint: "/api/group/invite/:groupName",
+    method: "PUT",
+    fields: { groupName: "input" , to: "input"},
+  },
+  {
+    name: "Accept Invite to Group",
+    endpoint: "/api/group/join/:groupName",
+    method: "PATCH",
+    fields: { groupName: "input" },
+  },
+  {
+    name: "Reject Invite to Group",
+    endpoint: "/api/group/reject/:groupName",
+    method: "PATCH",
+    fields: { groupName: "input" },
+  },
+  {
+    name: "Leave Group",
+    endpoint: "/api/group/leave/:groupName",
+    method: "DELETE",
+    fields: { groupName: "input" },
+  },
+  {
+    name: "Get Group Board",
+    endpoint: "/api/group/boards/:groupName",
+    method: "GET",
+    fields: { groupName: "input" },
+  },
+  {
+    name: "Make Group Forum",
+    endpoint: "/api/group/boards/:groupName",
+    method: "PUT",
+    fields: { groupName: "input" },
+  },
+  {
+    name: "Delete Group Forum",
+    endpoint: "/api/group/boards/:groupName",
+    method: "DELETE",
+    fields: { groupName: "input" },
+  },
+  {
+    name: "Get Forums",
+    endpoint: "/api/forums",
+    method: "GET",
+    fields: { },
+  },
+  {
+    name: "Create Forum",
+    endpoint: "/api/forums",
+    method: "PUT",
+    fields: { forumName: "input" },
+  },
+  {
+    name: "Delete Forum",
+    endpoint: "/api/forums",
+    method: "DELETE",
+    fields: { forumName: "input" },
+  },
+  {
+    name: "Join Forum",
+    endpoint: "/api/forums/:forumName",
+    method: "PUT",
+    fields: { forumName: "input" },
+  },
+  {
+    name: "Leave Forum",
+    endpoint: "/api/forums/:forumName",
+    method: "DELETE",
+    fields: { forumName: "input" },
+  },
+  {
+    name: "View Forum",
+    endpoint: "/api/forums/:forumName",
+    method: "GET",
+    fields: { forumName: "input" },
+  },
+  {
+    name: "Post to Forum",
+    endpoint: "/api/forums/:forumName",
+    method: "POST",
+    fields: { forumName: "input" , content: "input"},
+  },
+  {
+    name: "Post to Group Board",
+    endpoint: "/api/group/boards/:groupName",
+    method: "POST",
+    fields: { groupName: "input" , content: "input"},
+  },
+
+
 
 
 

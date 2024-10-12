@@ -55,7 +55,7 @@ export default class GroupingConcept {
     async disbandGroup(groupName: string, requestor: ObjectId) {
         const group = await this.groups.readOne({ groupName });
         if (!group) { throw new BadValuesError("This group does not exist:", + groupName)}
-        if (requestor !== group.admin) {
+        if (requestor != group.admin) {
             throw new NotAllowedError("Requestor does not possess admin priveleges over this group.")
         }
         return await this.groups.deleteOne({ groupName });
