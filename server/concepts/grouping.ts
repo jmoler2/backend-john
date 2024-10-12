@@ -18,7 +18,7 @@ export interface GroupInviteDoc extends BaseDoc {
     status: "pending" | "rejected" | "accepted";
   }
 
-/// I have decided to make my groups run only on invites.
+/// I have decided to make my groups run only on invites and not requests. I would like to keep this here for potential expansion on utility.
 export interface GroupRequestDoc extends BaseDoc {
     requestee: ObjectId;
     groupName: string;
@@ -59,6 +59,16 @@ export default class GroupingConcept {
             throw new NotAllowedError("Requestor does not possess admin priveleges over this group.")
         }
         return await this.groups.deleteOne({ groupName });
+    }
+
+    async leaveGroup(groupName: string, user: ObjectId) {
+        const group = await this.groups.readOne({ groupName });
+        if (!group) { throw new BadValuesError("This group does not exist:", + groupName)}
+        await this.assertIsMember(user, groupName);
+
+        const mems = group.members
+        mems.splice(mems.indexOf(user), 1)
+        return await this.groups.partialUpdateOne({groupName}, {members: mems})
     }
 
     async invite(from:ObjectId, to:ObjectId, groupName: string) {
@@ -113,11 +123,15 @@ export default class GroupingConcept {
       }
 
     async createGroupBoard(user: ObjectId, object: ObjectId, groupName: string) {
+        /**
+         * This is using an array so that funcitonality can be extended in the future.
+         */
         const group = await this.groups.readOne({ groupName });
         if (!group) { throw new BadValuesError("This group does not exist:", + groupName)}
         if (user !== group.admin) {
             throw new NotAllowedError("Requestor does not possess admin priveleges over this group.")
         }
+        if (group.boards.length !== 0) {throw new NotAllowedError("Only one board allowed per group")}
         const boards = group.boards.concat([object])
         return await this.groups.partialUpdateOne({groupName}, {boards})
     }
@@ -144,6 +158,12 @@ export default class GroupingConcept {
         const group = await this.groups.readOne({ groupName });
         if (!group) { throw new BadValuesError("This group does not exist:", + groupName)}
         return group.members
+    }
+
+    async assertIsMember(user: ObjectId, groupName: string) {
+        const group = await this.groups.readOne({ groupName });
+        if (!group) { throw new BadValuesError("This group does not exist:", + groupName)}
+        if (!group.members.includes(user)) {throw new NotAllowedError("This user is not a member of this group.")}
     }
 
 

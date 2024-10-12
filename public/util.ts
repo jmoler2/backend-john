@@ -110,6 +110,14 @@ const operations: Operation[] = [
     method: "PATCH",
     fields: { location: "input" },
   },
+  {
+    name: "Create a Group",
+    endpoint: "/api/group/:groupName",
+    method: "POST",
+    fields: { groupName: "input" },
+  },
+
+
 
   //
   // ...

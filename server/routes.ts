@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Authing, Friending, Grouping, Messaging, Posting, Sessioning, TravellingUsers } from "./app";
+import { Authing, Foruming, Friending, Grouping, Messaging, Posting, Sessioning, TravellingUsers } from "./app";
 import { PostOptions } from "./concepts/posting";
 import { SessionDoc } from "./concepts/sessioning";
 import Responses from "./responses";
@@ -185,50 +185,115 @@ class Routes {
     return await TravellingUsers.changeLocation(user, location);
   }
 
-  @Router.post("/group/:id")
+  @Router.post("/group/:groupName")
   async createGroup(session: SessionDoc, groupName: string) {
     const user = Sessioning.getUser(session);
     return await Grouping.createGroup(groupName, user);
   }
 
-  @Router.patch("/group/:id")
+  @Router.patch("/group/:groupName")
   async deleteGroup(session: SessionDoc, groupName: string) {
     const user = Sessioning.getUser(session);
     return await Grouping.disbandGroup(groupName, user);
   }
 
-  @Router.get("/group/:id")
+  @Router.get("/group/:groupName")
   async getGroupMembers(session: SessionDoc, groupName: string) {
     const user = Sessioning.getUser(session);
     await Grouping.assertIsMember(user, groupName);
     return await Grouping.getMembers;
   }
 
-  @Router.put("/group/:id/invite")
-  async inviteToGroup() {}
+  @Router.put("/group/:groupName/invite")
+  async inviteToGroup(session: SessionDoc, groupName: string, to: string) {
+    const user = Sessioning.getUser(session);
+    const toId = (await Authing.getUserByUsername(to))._id;
+    return await Grouping.invite(user, toId, groupName);
+  }
 
-  @Router.put("/group/:id/join")
-  async joinGroup() {}
+  @Router.put("/group/:groupName/join")
+  async acceptInvite(session: SessionDoc, groupName: string) {
+    const user = Sessioning.getUser(session);
+    return await Grouping.acceptInvite(user, groupName);
+  }
 
-  @Router.delete("group/:id/leave")
-  async leaveGroup() {}
+  @Router.put("/group/:groupName/reject") 
+  async rejectInvite(session: SessionDoc, groupName: string) {
+    const user = Sessioning.getUser(session);
+    return await Grouping.acceptInvite(user, groupName);
+  }
 
-  @Router.get("/group/:id/board")
-  async getGroupBoard() {}
+  @Router.delete("group/:groupName/leave")
+  async leaveGroup(session: SessionDoc, groupName: string) {
+    const user = Sessioning.getUser(session);
+    return await Grouping.leaveGroup(groupName, user);
+  }
+
+  @Router.get("/group/:groupName/boards")
+  async getGroupBoard(session: SessionDoc, groupName: string) {
+    const user = Sessioning.getUser(session);
+    return await Grouping.getBoards(user, groupName);
+  }
+
+  @Router.put('/group/:groupName/boards')
+  async makeGroupForum(session: SessionDoc, groupName: string) {
+    const user = Sessioning.getUser(session);
+    const forum = await Foruming.createForum(groupName + "_forum", user)
+    return await Grouping.createGroupBoard(user, forum, groupName);
+  }
+
+  @Router.delete('/group/:groupName/boards')
+  async deleteGroupForum(session: SessionDoc, groupName: string) {
+    const user = Sessioning.getUser(session);
+    const forum = (await Grouping.getBoards(user, groupName))[0];
+    return await Grouping.deleteGroupBoard(user, forum, groupName);
+  }
 
   @Router.get("/forums")
-  async getForums() {}
+  async getForums(session: SessionDoc) {
+    const user = Sessioning.getUser(session);
+    return await Foruming.getForums()
+  }
 
-  @Router.put("/forums/:id")
-  async joinForum() {}
+  @Router.put("/forums/:forumName")
+  async joinForum(session: SessionDoc, forumName: string) {
+    const user = Sessioning.getUser(session);
+    return await Foruming.joinForum(user, forumName);
+  }
 
-  @Router.delete("/forums/:id")
-  async leaveForum() {}
+  @Router.delete("/forums/:forumName")
+  async leaveForum(session: SessionDoc, forumName: string) {
+    const user = Sessioning.getUser(session);
+    return await Foruming.leaveForum(user, forumName);
+  }
 
-  @Router.get("/forums/:id")
-  async viewForum() {}
+  @Router.get("/forums/:forumName")
+  async viewForum(session: SessionDoc, forumName: string) {
+    const user = Sessioning.getUser(session);
+    return await Foruming.getForumContent(user, forumName);
+  }
 
+  @Router.post("/forums/:forumName")
+  async postToForum(session: SessionDoc, content: string, forumName: string, options?: PostOptions) {
+    const user = Sessioning.getUser(session);
+    const created = await Posting.create(user, content, options);
+
+    return await Foruming.addToForum(user, created.post?._id??new ObjectId(), forumName)
+  }
+
+  @Router.post("/group/:groupName/boards")
+  async postToGroup(session: SessionDoc, content: string, groupName: string, options?: PostOptions) {
+    const user = Sessioning.getUser(session);
+    const created = await Posting.create(user, content, options);
+    const board = (await Grouping.getBoards(user, groupName)).at(0)?? new ObjectId()
+    const forumName = await Foruming.getForumNameById(board) ?? "Error404";
+    
+
+    return await Foruming.addToForum(user, created.post?._id??new ObjectId(), forumName);
+  }
 }
+
+
 
 /** The web app. */
 export const app = new Routes();

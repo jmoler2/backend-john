@@ -5,7 +5,7 @@ import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError } from "./errors";
 
 export interface ForumDoc extends BaseDoc {
-    forumName: String,
+    forumName: string,
     forumContent: ObjectId[]
     forumFollowers: ObjectId[]
     admin: ObjectId
@@ -20,7 +20,7 @@ export default class ForumConcept {
 
     async createForum(forumName: string, user: ObjectId) {
         const forum = await this.forums.readOne({forumName})
-        if (forum) {return new NotAllowedError("A forum with this name already exists."
+        if (forum) {throw new NotAllowedError("A forum with this name already exists."
         )}
         return await this.forums.createOne({forumName, forumContent: [], forumFollowers: [user], admin: user})
     }
@@ -37,6 +37,10 @@ export default class ForumConcept {
         if (forum.forumFollowers.includes(user)) {throw new NotAllowedError("This user is already following this forum.")}
         const followers = forum.forumFollowers.concat([user])
         return await this.forums.partialUpdateOne({forumName}, {forumFollowers: followers})
+    }
+
+    async getForumNameById(id: ObjectId) {
+        return (await this.forums.readOne({_id: id}))?.forumName
     }
 
     async leaveForum(user: ObjectId, forumName: string) {
@@ -59,7 +63,7 @@ export default class ForumConcept {
         return await this.forums.readMany({})
     }
 
-    async addToForum(user: ObjectId, content: ObjectId, forumName: string) {
+    async addToForum(user: ObjectId, content: ObjectId, forumName: String) {
         const forum = await this.forums.readOne({forumName})
         if (!forum) {throw new NotAllowedError("This forum does not exist.")}
         if (!forum.forumFollowers.includes(user)) {throw new NotAllowedError("This user is not following this forum.")}

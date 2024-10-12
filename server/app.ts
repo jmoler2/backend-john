@@ -16,4 +16,4 @@ export const Friending = new FriendingConcept("friends");
 export const Messaging = new MessagingConcept("messages");
 export const TravellingUsers = new TravellingConcept("users");
 export const Grouping = new GroupingConcept('groups');
-export const Forumming = new ForumConcept("forums")
+export const Foruming = new ForumConcept("forums")
