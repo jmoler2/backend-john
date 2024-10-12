@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Authing, Friending, Messaging, Posting, Sessioning, TravellingUsers } from "./app";
+import { Authing, Friending, Grouping, Messaging, Posting, Sessioning, TravellingUsers } from "./app";
 import { PostOptions } from "./concepts/posting";
 import { SessionDoc } from "./concepts/sessioning";
 import Responses from "./responses";
@@ -186,13 +186,23 @@ class Routes {
   }
 
   @Router.post("/group/:id")
-  async createGroup() {}
+  async createGroup(session: SessionDoc, groupName: string) {
+    const user = Sessioning.getUser(session);
+    return await Grouping.createGroup(groupName, user);
+  }
 
   @Router.patch("/group/:id")
-  async changeGroup() {}
+  async deleteGroup(session: SessionDoc, groupName: string) {
+    const user = Sessioning.getUser(session);
+    return await Grouping.disbandGroup(groupName, user);
+  }
 
   @Router.get("/group/:id")
-  async getGroupMembers() {}
+  async getGroupMembers(session: SessionDoc, groupName: string) {
+    const user = Sessioning.getUser(session);
+    await Grouping.assertIsMember(user, groupName);
+    return await Grouping.getMembers;
+  }
 
   @Router.put("/group/:id/invite")
   async inviteToGroup() {}
@@ -218,8 +228,6 @@ class Routes {
   @Router.get("/forums/:id")
   async viewForum() {}
 
-  @Router.get("/forums")
-  async sortForums() {}
 }
 
 /** The web app. */

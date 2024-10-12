@@ -1,5 +1,7 @@
 import AuthenticatingConcept from "./concepts/authenticating";
+import ForumConcept from "./concepts/foruming";
 import FriendingConcept from "./concepts/friending";
+import GroupingConcept from "./concepts/grouping";
 import MessagingConcept from "./concepts/messaging";
 import PostingConcept from "./concepts/posting";
 import SessioningConcept from "./concepts/sessioning";
@@ -13,3 +15,5 @@ export const Posting = new PostingConcept("posts");
 export const Friending = new FriendingConcept("friends");
 export const Messaging = new MessagingConcept("messages");
 export const TravellingUsers = new TravellingConcept("users");
+export const Grouping = new GroupingConcept('groups');
+export const Forumming = new ForumConcept("forums")
